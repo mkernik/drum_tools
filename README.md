@@ -6,7 +6,7 @@ This repository contains a collection of python scripts and tools to help with e
 
 ## Requirements
 
-* [Python 3](https://www.python.org/) (tools built with version 3.7.11)
+* [Python 3](https://www.python.org/) (tools built with version 3.7.11) with additional library [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
 ## How to use
 * Download or clone this repository folder to your computer
