@@ -3,6 +3,7 @@ This repository contains a collection of python scripts and tools to help with e
 
 ## Features 
 * Automated Readme tool  (DRUM_automated_readme.py) : Create a readme from the information provided by researchers during the submission process
+* Metadata log tool (DRUM_metadata_log.py): Create a metadata log with a list of the content files and metadata for the submission 
 
 ## Requirements
 
@@ -15,11 +16,11 @@ This repository contains a collection of python scripts and tools to help with e
 
   **Example:** cd path/of/script
 
-* Open Python, call the script, and provide 1) the handle URL of the submission  2) the path of the folder where you would like the readme created
+* Open Python, call the script, and provide 1) the handle URL of the submission  2) the path of the folder where you would like the readme or metadata log file created
 
-  **Windows example:** py DRUM_automated_readme.py https://hdl.handle.net/11299/185412 directory/
+  **Windows example:** py DRUM_automated_readme.py https://hdl.handle.net/11299/185412 path/to/folder
 
-  **Mac example:** python DRUM_automated_readme.py https://hdl.handle.net/11299/185412 directory/
+  **Mac example:** python DRUM_automated_readme.py https://hdl.handle.net/11299/185412 path/to/folder
 
 
 ## Author and Contributors
