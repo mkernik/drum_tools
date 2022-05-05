@@ -9,14 +9,14 @@ output: text file readme ("Readme_[last 6 numbers of the handle]")
 description: This script generates a readme from the information entered by
 researchers during the submission process to the Data Repository for the
 University of Minnesota (DRUM). It is based on a readme template originally
-developed at Cornell Univeristy. 
+developed at Cornell Univeristy.
 
 last modified: March 2022
 author: Melinda Kernik
 """
 ##import necessary modules and return a message if any are not available
 try:
-    import urllib
+    import urllib.request
     import sys
     from bs4 import BeautifulSoup
     from string import Template
@@ -24,15 +24,15 @@ try:
 
 except Exception as e:
     print(e)
- 
 
-#Get the handle url and the output folder path for the readme 
+
+#Get the handle url and the output folder path for the readme
 args = sys.argv
 handle_url = args[1]
 report_directory = args[2]
 
 
-#Use the handle URL to construct a URL to get to the Dspace endpoint for the item  
+#Use the handle URL to construct a URL to get to the Dspace endpoint for the item
 handle_split = handle_url.split ("/") [-2:]
 handle = str(handle_split[0]) + "/" + str(handle_split[1])
 url = "https://conservancy.umn.edu/rest/handle/" + handle
@@ -64,12 +64,12 @@ metadata = soup.p.string
 list_metadata = eval(metadata.replace('null', '"null"'))
 
 #Create an dictionary to be filled with metadata values from the submission
-metadata_dict = {'readme_date': str(datetime.now().strftime("%Y-%m-%d")), 
-                 'title':"",'date_published':"", "authors":"", "date_collected":"", 
-                 "spatial":"", "abstract": "", "license_info":"", "publications":"", 
+metadata_dict = {'readme_date': str(datetime.now().strftime("%Y-%m-%d")),
+                 'title':"",'date_published':"", "authors":"", "date_collected":"",
+                 "spatial":"", "abstract": "", "license_info":"", "publications":"",
                  "funding":"", 'file_list':""}
 
-#Create lists and dictionaries to hold multi-valued metadata elements or values 
+#Create lists and dictionaries to hold multi-valued metadata elements or values
 #that need to be edited before being added to the dictionary
 authors_list = []
 referenceby = []
@@ -77,41 +77,41 @@ funders = []
 rights_dict = {}
 date_collected_dict = {}
 
-       
-#For each metadata field in Dspace, check if it is something to be included in the readme.  
-#If it is, add it to the metadata dictionary or to a list for further processing.  
+
+#For each metadata field in Dspace, check if it is something to be included in the readme.
+#If it is, add it to the metadata dictionary or to a list for further processing.
 for x in range(len(list_metadata)):
     ##General information
     if list_metadata[x]['key'] == 'dc.title':
         metadata_dict ['title'] = list_metadata[x]['value']
-    
+
     if list_metadata[x]['key'] == 'dc.contributor.author':
         authors_list.append(list_metadata[x]['value'])
-    
+
     if list_metadata[x]['key'] == 'dc.contributor.contactname':
         contact_name = list_metadata[x]['value']
-    
+
     if list_metadata[x]['key'] == 'dc.contributor.contactemail':
-        contact_email = list_metadata[x]['value']    
-    
+        contact_email = list_metadata[x]['value']
+
     #Split the date field and use only YYYYMMDD, not exact time
     if list_metadata[x]['key'] == 'dc.date.available':
         date_split = list_metadata[x]['value'].split("T")
         metadata_dict ['date_published'] = date_split[0]
-    
+
     if list_metadata[x]['key'] == 'dc.date.collectedbegin':
         date_collected_dict['begin'] = list_metadata[x]['value']
     if list_metadata[x]['key'] == 'dc.date.collectedend':
         date_collected_dict['end'] = list_metadata[x]['value']
-    
+
     if list_metadata[x]['key'] == 'dc.coverage.spatial':
         metadata_dict ['spatial'] = list_metadata[x]['value']
-    
+
     if list_metadata[x]['key'] == 'dc.description.sponsorship':
-        funders.append(list_metadata[x]['value'])  
-    
+        funders.append(list_metadata[x]['value'])
+
     if list_metadata[x]['key'] == 'dc.description.abstract':
-        metadata_dict ['abstract'] = list_metadata[x]['value']            
+        metadata_dict ['abstract'] = list_metadata[x]['value']
 
     #Sharing/Access Information
     #Remove formatting from dc.rights field before adding it to the metadata dictionary
@@ -119,21 +119,21 @@ for x in range(len(list_metadata)):
         rights_dict['rights'] = list_metadata[x]['value'].replace('\r\n', " ")
     if list_metadata[x]['key'] == 'dc.rights.uri':
         rights_dict['rights_url'] = list_metadata[x]['value']
-    
+
     if list_metadata[x]['key'] == 'dc.relation.isreferencedby':
         referenceby.append(list_metadata[x]['value'])
 
 
-###Format multi-valued metadata elements to be added to the metadata dictionary      
+###Format multi-valued metadata elements to be added to the metadata dictionary
 author_string = ""
-for author in authors_list:        
+for author in authors_list:
     #Rearrange author name to be First Last instead of Last, First
     author_split = author.split (",") [:]
-    author_firstLast = author_split[1] + " " + author_split[0]   
+    author_firstLast = author_split[1] + " " + author_split[0]
     #If the author is the contact person, add their email address. If not, leave email blank.
     if author == contact_name:
         author_string += "\n\tName: " + author_firstLast + "\n\tInstitution:\n\tAddress:\n\tEmail: " + contact_email + "\n\tID:\n\n"
-    else:    
+    else:
         author_string += "\n\tName: " + author_firstLast + "\n\tInstitution:\n\tAddress:\n\tEmail:\n\tID:\n\n"
 metadata_dict ['authors'] = author_string
 
@@ -148,18 +148,18 @@ for item in referenceby:
 metadata_dict ['publications'] = publications_string
 
 
-## Add together multiple Dspace fields to be used in one section of the readme 
-if date_collected_dict: 
+## Add together multiple Dspace fields to be used in one section of the readme
+if date_collected_dict:
     metadata_dict ['date_collected'] = str(date_collected_dict['begin']) + " to " + str(date_collected_dict['end'])
 
-if rights_dict: 
+if rights_dict:
     rights_string = rights_dict['rights'] + " (" + rights_dict["rights_url"] + ")"
     metadata_dict ['license_info'] = rights_string
 
 
 ###Get item bitstream information from the submission
 
-#Read in the content at the bitstream endpoint. Default limit is 20 items per page.  
+#Read in the content at the bitstream endpoint. Default limit is 20 items per page.
 #Extended to 250 to account for larger data submissions.
 url = "https://conservancy.umn.edu/rest/items/" + str(internal_id) + "/bitstreams?limit=250"
 response = urllib.request.urlopen(url)
@@ -218,7 +218,7 @@ readme_string = readme_template.substitute(metadata_dict)
 
 
 ###Add a data_specific section to the readme for each spreadsheet file
-#Make a list of all "Original" bitstream items with ".csv" or ".xlsx" in the name 
+#Make a list of all "Original" bitstream items with ".csv" or ".xlsx" in the name
 spreadsheets = []
 data_specific_string = ""
 for x in list_bitstream:
@@ -229,7 +229,7 @@ for x in list_bitstream:
         if ".xls" in x['name']:
             spreadsheets.append(x['name'])
 
-#If there are no files with .csv or .xls extensions in the submission, add a 
+#If there are no files with .csv or .xls extensions in the submission, add a
 #placeholder "[FILENAME]" so that there will be one example section
 if not spreadsheets:
     spreadsheets.append("[FILENAME]")
@@ -255,6 +255,6 @@ readme_full_string = readme_string + data_specific_string
 
 #Write the readme to a text file
 readme_path = report_directory + "Readme_" + str(handle_split[1]) + ".txt"
-f = open(readme_path,"w") 
+f = open(readme_path,"w")
 f.write(readme_full_string)
 f.close()
