@@ -3,6 +3,7 @@ This folder contains experiments in ways to distribute scripts as GUI tools to c
 
 ## Features 
 * Metadata log tool (DRUM_metadata_log_tkinter.py): Create a metadata log with a list of the content files and metadata for the submission 
+* Combined tool (DRUM_combined_tkinter.py): Options to create a metadata log, readme, and/or XML that can be used to create a DOI through Datacite
 
 ## Requirements
 
