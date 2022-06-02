@@ -23,11 +23,11 @@ This repository contains a collection of python scripts and tools to help with e
   **Mac example:** python DRUM_automated_readme.py https://hdl.handle.net/11299/185412 path/to/folder
 
 
-## Author and Contributors
+## Author / Contributors
 
 Melinda Kernik - [University of Minnesota Borchert Map Library](https://www.lib.umn.edu/about/staff/melinda-kernik)
 
-Review and improvements by:
+Valerie Collins - [University of Minnesota Libraries](https://www.lib.umn.edu/about/staff/valerie-collins)
 
 ## License
 
