@@ -24,6 +24,7 @@ authors: Melinda Kernik and Valerie Collins
 try:
     import urllib.request
     import math
+    from os import mkdir
     import tkinter.filedialog
     import tkinter.messagebox
     from tkinter import LabelFrame
@@ -77,12 +78,54 @@ def get_urls(handle_url):
     
     bitstream_url = "https://conservancy.umn.edu/rest/items/" + str(internal_id) + "/bitstreams?limit=250"
     metadata_url = "https://conservancy.umn.edu/rest/items/" + str(internal_id) + "/metadata"
-    return handle_split, bitstream_url, metadata_url 
+    return handle, handle_split[1], bitstream_url, metadata_url
+
+
+def download_files (handle_url, outputDir):
+    full_handle, end_handle, bitstream_url, metadata_url = get_urls(handle_url)
+    
+    #Create a folder with the unique handle number of the submission. Return an error if that folder already exists.
+    try:
+        download_path = outputDir + "\\" + end_handle + "\\" 
+        mkdir(download_path)
+        print("Creating directory: " + download_path)
+    except Exception as e:
+        show_error("Error creating directory (" + str(e) + ")")
+        #print ("Folder (" + download_path + ") already exists.")
+    
+    
+    #Read in the content at the bitstream API endpoint. Default limit is 20 items per page.
+    #Extended to 250 to account for larger data submissions.
+    response = urllib.request.urlopen(bitstream_url)
+    item_soup = BeautifulSoup(response, 'lxml')
+    bitstream = item_soup.p.text
+    list_bitstream = eval(bitstream.replace('null', '"null"'))
+    
+    #For each bitstream in the bundle "ORIGINAL", construct a download link and request the files    
+    for x in list_bitstream:
+        if x['bundleName'] == "ORIGINAL":
+            try:
+                filename = x['name']
+                sequenceId = x['sequenceId']
+                #check for white spaces in bitstream filename & replace if needed
+                if ' ' in filename:
+                    newfilename = filename.replace(' ', '%20')
+                    print("New filename: " + newfilename)
+                    download = "https://conservancy.umn.edu/bitstream/handle/" + full_handle + "/" + newfilename + "?sequence=" + str(sequenceId) + "&isAllowed=y/"
+                    print (download)
+                    urllib.request.urlretrieve(download, (download_path + "\\" + filename))
+                else:
+                    download = "https://conservancy.umn.edu/bitstream/handle/" + full_handle + "/" + newfilename + "?sequence=" + str(sequenceId) + "&isAllowed=y/"
+                    print (download)
+                    urllib.request.urlretrieve(download, (download_path + "\\" + filename))
+            except:
+                print ("Cannot download: " + filename + ". There may be spaces in the file name.  Please try downloading manually." )
+                pass
 
 def metadata_log(handle_url, outputDir):
 
     ###Get API endpoint urls based on the submission handle
-    handle_split, bitstream_url, metadata_url  = get_urls(handle_url)
+    full_handle, end_handle, bitstream_url, metadata_url = get_urls(handle_url)
 
     #Read in the content at the bitstream API endpoint. Default limit is 20 items per page.
     #Extended to 250 to account for larger data submissions.
@@ -145,7 +188,7 @@ Original Metadata from Author:
 
 
     #Write the metadata log to a text file
-    metadata_log_path = outputDir + "/metadata_" + str(handle_split[1]) + "_" + str(datetime.now().strftime("%Y%m%d")) + ".txt"
+    metadata_log_path = outputDir + "/metadata_" + str(end_handle) + "_" + str(datetime.now().strftime("%Y%m%d")) + ".txt"
     f = open(metadata_log_path,"w")
     f.write(metadata_log_template)
     f.close()
@@ -156,7 +199,7 @@ Original Metadata from Author:
 def automated_readme (handle_url, outputDir):
     
     ###Get API endpoint urls based on the submission handle
-    handle_split, bitstream_url, metadata_url  = get_urls(handle_url)
+    full_handle, end_handle, bitstream_url, metadata_url = get_urls(handle_url)
 
     #Read in the content at the metadata endpoint
     response = urllib.request.urlopen(metadata_url)
@@ -353,7 +396,7 @@ DATA-SPECIFIC INFORMATION FOR: """ + item + """\n-------------------------------
     readme_full_string = readme_string + data_specific_string
 
     #Write the readme to a text file
-    readme_path = outputDir + "/readme_" + str(handle_split[1]) + ".txt"
+    readme_path = outputDir + "/readme_" + str(end_handle) + ".txt"
     f = open(readme_path,"w")
     f.write(readme_full_string)
     f.close()
@@ -362,7 +405,7 @@ DATA-SPECIFIC INFORMATION FOR: """ + item + """\n-------------------------------
 def datacite_xml(handle_url, outputDir):
     
     ###Get API endpoint urls based on the submission handle
-    handle_split, bitstream_url, metadata_url  = get_urls(handle_url)
+    full_handle, end_handle, bitstream_url, metadata_url = get_urls(handle_url)
     
     #Read in the content at the metadata endpoint
     response = urllib.request.urlopen(metadata_url)
@@ -424,7 +467,7 @@ def datacite_xml(handle_url, outputDir):
 </resource>"""
 
     #Write the schema to an xml file
-    schema_log_path = outputDir + "/doi_metadata_" + str(handle_split[1]) + ".xml"
+    schema_log_path = outputDir + "/doi_metadata_" + str(end_handle) + ".xml"
     f = open(schema_log_path,"w") 
     f.write(datacite_schema)
     f.close()
@@ -438,6 +481,16 @@ app.title("DRUM Tools")
 
 
 # Open the folder picker and send selected information to the metadata_log() function.
+def click_download_files():
+    handle_url = entry.get()
+    outputDir = tkinter.filedialog.askdirectory()
+    if handle_url and outputDir:
+        download_files(handle_url, outputDir)
+    elif outputDir:
+        show_error("Please enter the URL for a DRUM submission")
+    elif handle_url:
+        show_error("Please select an output folder")
+
 def click_metadata_log():
     handle_url = entry.get()
     outputDir = tkinter.filedialog.askdirectory()
@@ -487,23 +540,30 @@ entry.pack(ipady=2)
 frame = LabelFrame(app, borderwidth=0, highlightthickness=0, padx=5, pady=5)
 frame.pack(padx=30, pady=30)
 
-# Draw the button that opens the folder picker for the metadata log
-open_folder = tkinter.Button(frame, text="Create metadata log", command=click_metadata_log)
+# Draw the button that opens the folder picker for downloading files
+open_folder = tkinter.Button(frame, text="Download files", command=click_download_files)
 open_folder.grid(row=0, column=0)
 
 Spacer1 = tkinter.Label(frame, text = "       ")
 Spacer1.grid(row=0,column=1)
 
-# Draw the button that opens the folder picker for the readme
-open_folder = tkinter.Button(frame, text="Create readme", command=click_readme)
+# Draw the button that opens the folder picker for the metadata log
+open_folder = tkinter.Button(frame, text="Create metadata log", command=click_metadata_log)
 open_folder.grid(row=0, column=2)
 
+Spacer1 = tkinter.Label(frame, text = "       ")
+Spacer1.grid(row=0,column=3)
+
+# Draw the button that opens the folder picker for the readme
+open_folder = tkinter.Button(frame, text="Create readme", command=click_readme)
+open_folder.grid(row=0, column=4)
+
 Spacer2 = tkinter.Label(frame, text = "       ")
-Spacer2.grid(row=0,column=3)
+Spacer2.grid(row=0,column=5)
 
 # Draw the button that opens the folder picker for the Datacite XML
 open_folder = tkinter.Button(frame, text="Create DOI XML", command=click_doi)
-open_folder.grid(row=0, column=4)
+open_folder.grid(row=0, column=6)
 
 
 # Initialize Tk window
