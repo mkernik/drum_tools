@@ -115,12 +115,13 @@ def download_files (handle_url, outputDir):
                     print (download)
                     urllib.request.urlretrieve(download, (download_path + "\\" + filename))
                 else:
-                    download = "https://conservancy.umn.edu/bitstream/handle/" + full_handle + "/" + newfilename + "?sequence=" + str(sequenceId) + "&isAllowed=y/"
+                    download = "https://conservancy.umn.edu/bitstream/handle/" + full_handle + "/" + filename + "?sequence=" + str(sequenceId) + "&isAllowed=y/"
                     print (download)
                     urllib.request.urlretrieve(download, (download_path + "\\" + filename))
             except:
                 print ("Cannot download: " + filename + ". There may be spaces in the file name.  Please try downloading manually." )
                 pass
+    show_results("Finished downloading files for: " + handle_url)
 
 def metadata_log(handle_url, outputDir):
 
