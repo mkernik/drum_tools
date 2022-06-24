@@ -2,8 +2,8 @@
 This repository contains a collection of python scripts and tools to help with efficiently processing submissions to the Data Repository at the University of Minnesota (DRUM)
 
 ## Features 
-* Automated Readme tool  (DRUM_automated_readme.py) : Create a readme from the information provided by researchers during the submission process
-* Metadata log tool (DRUM_metadata_log.py): Create a metadata log with a list of the content files and metadata for the submission 
+* Download files tool (DRUM_downloadFiles.py): Creates a folder and downloads the content files from a DRUM submission   
+* tools_development: This folder contains alternative versions of scripts and tools that are under development. 
 
 ## Requirements
 
@@ -16,12 +16,13 @@ This repository contains a collection of python scripts and tools to help with e
 
   **Example:** cd path/of/script
 
-* Open Python, call the script, and provide 1) the handle URL of the submission  2) the path of the folder where you would like the readme or metadata log file created
+* Open Python and call the script. 
 
-  **Windows example:** py DRUM_automated_readme.py https://hdl.handle.net/11299/185412 path/to/folder
+  **Windows example:** py DRUM_downloadFiles
 
-  **Mac example:** python DRUM_automated_readme.py https://hdl.handle.net/11299/185412 path/to/folder
+  **Mac example:** python DRUM_downloadFiles
 
+An interface will open allowing you to enter the handle URL for a DRUM submission (e.g. https://hdl.handle.net/11299/228067).  Click "Download Files" and view progress in the black console window that opens along with the interface.  
 
 ## Author / Contributors
 
