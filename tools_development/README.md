@@ -2,7 +2,7 @@
 This folder contains experiments in ways to distribute scripts as GUI tools to curators at the Data Repository at the University of Minnesota (DRUM)
 
 ## Features
-There are two version of the tool, both with options to:
+There are two version of a combined tool, both with options to:
 * download files associated with a submission
 * create a metadata log
 * create a readme
@@ -26,11 +26,11 @@ tkinter_interface.py contains just the user interface and draws on modules (down
 
 * Open Python and call the script .
 
-  **Windows example:** py DRUM_metadata_log_tkinter.py
+  **Windows example:** py DRUM_combined_tkinter.py
 
-  **Mac example:** python DRUM_metadata_log_tkinter.py
+  **Mac example:** python py DRUM_combined_tkinter.py
 
-* In the dialog box that opens provide 1) the handle URL of the submission  2) the path of the folder where you would like the metadata log file created
+* In the dialog box that opens provide 1) the handle URL of the submission  2) the path of the folder where you would like the file(s) to be saved
 
 ## License
 
