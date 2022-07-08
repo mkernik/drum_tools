@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 script name:DRUM_downloadFiles.py
-
 inputs: -DRUM handle URL (i.e. https://hdl.handle.net/11299/226188 or https://conservancy.umn.edu/handle/11299/226188)
         -directory path for where files should be downloaded
 outputs: -folder named using the last 6 numbers of the submission handle
          -downloaded content files from the DRUM submission
-
 description: This tkinter script tool creates a folder named using the last
 6 numbers of the handle and downloads the content files from the
 submission into that folder. Known limitation: it cannot download files that
 are embargoed on the record.
-
 last modified: June 2022
 @author: kerni016 and vmcollins
 """
@@ -172,7 +169,7 @@ app.title("DRUM Download Tools")
 def click_download():
     #set user feedback to display while downloading
     open_folder['text'] = "Downloading..."
-    describe_text['text'] = "\nIf the app seems stuck, check console window for current progress!\n"
+    describe_text['text'] = "\n\nIf the app seems stuck, check console window for current progress!\n\n"
 
     #Get information provided by the user
     handle_url = entry.get()
