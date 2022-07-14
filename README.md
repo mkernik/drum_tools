@@ -1,8 +1,9 @@
 # Processing tools for DRUM
 This repository contains a collection of python scripts and tools to help with efficiently processing submissions to the Data Repository at the University of Minnesota (DRUM)
 
-## Features 
-* Download files tool (DRUM_downloadFiles.py): Creates a folder and downloads the content files from a DRUM submission   
+## Features
+* DRUM_Curator_Tools.ipynb: A CoLab Notebook with scripts to create a metadata log, Readme.txt, and Datacite XML for DRUM submissions.  
+* Download files tool (DRUM_downloadFiles.py): Creates a folder and downloads the content files from a DRUM submission.  An [executable version of this tool](https://z.umn.edu/DRUM_downloadFiles) is available for Windows only.   
 * tools_development: This folder contains alternative versions of scripts and tools that are under development. Note: these scripts are not being kept fully in sync with the CoLab Notebook.
 
 ## Requirements
@@ -10,8 +11,14 @@ This repository contains a collection of python scripts and tools to help with e
 * [Python 3](https://www.python.org/) (tools built with version 3.7.11) with additional library [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
 ## How to use
+
+### Colab Notebook
+* Click on DRUM_Curator_Tools.ipynb in the list of files above
+* Click on the "Open in Colab" button at the top of the page
+
+### Other scripts in the repository
 * Download or clone this repository folder to your computer
-* Open the Command Prompt (windows) or Terminal (mac).
+* Open the Command Prompt (windows) or Terminal (mac)
 * Change the working directory to the location of the script
 
   **Example:** cd path/of/script
