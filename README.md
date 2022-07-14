@@ -3,7 +3,7 @@ This repository contains a collection of python scripts and tools to help with e
 
 ## Features 
 * Download files tool (DRUM_downloadFiles.py): Creates a folder and downloads the content files from a DRUM submission   
-* tools_development: This folder contains alternative versions of scripts and tools that are under development. 
+* tools_development: This folder contains alternative versions of scripts and tools that are under development. Note: these scripts are not being kept fully in sync with the CoLab Notebook.
 
 ## Requirements
 
@@ -18,9 +18,9 @@ This repository contains a collection of python scripts and tools to help with e
 
 * Open Python and call the script. 
 
-  **Windows example:** py DRUM_downloadFiles
+  **Windows example:** py DRUM_downloadFiles.py
 
-  **Mac example:** python DRUM_downloadFiles
+  **Mac example:** python DRUM_downloadFiles.py
 
 An interface will open allowing you to enter the handle URL for a DRUM submission (e.g. https://hdl.handle.net/11299/228067).  Click "Download Files" and view progress in the black console window that opens along with the interface.  
 
