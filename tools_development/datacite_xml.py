@@ -65,8 +65,8 @@ def datacite_xml(handle_url, outputDir):
         author_string += """
         <creator>
             <creatorName nameType="Personal">""" + author + """</creatorName>
-            <givenName>""" + author_first + """</givenname>
-            <familyName>""" + author_last + """</familyname>
+            <givenName>""" + author_first + """</givenName>
+            <familyName>""" + author_last + """</familyName>
         </creator>"""
 
 
