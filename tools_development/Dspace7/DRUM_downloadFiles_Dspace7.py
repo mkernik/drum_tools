@@ -83,9 +83,8 @@ def validate_input(link_url, outputDir):
     
     #Try to access the Dspace endpoint. Return an error message and stop if the URL cannot be opened.
     try:
-        response = urllib.request.urlopen(item_api_url)
-        link_url_valid = True
         response = requests.get(item_api_url)
+        link_url_valid = True
         itemData = response.json()
         handle_uri = itemData['metadata']['dc.identifier.uri'][0]['value']
         handle_split = handle_uri.split ("/") [-2:]
@@ -94,6 +93,15 @@ def validate_input(link_url, outputDir):
         show_error("The tool cannot access information. Double check the URL.") 
         print("The API endpoint (" + item_api_url + ") could not be opened:  " + str(e))
     
+    #Check whether all associated files are embargoed
+    try:
+        response = requests.get(item_api_url + "/accessStatus")
+        accessData = response.json()
+        status = accessData['status']
+        print (status)
+    except Exception as e:
+        print("The API endpoint (" + item_api_url + ") could not be opened:  " + str(e))
+        
     #Create a folder with the unique handle number of the submission. Return an error if that folder already exists.
     if link_url_valid:       
         download_path = outputDir + "/" + handle_split[1] + "/"
@@ -110,7 +118,7 @@ def validate_input(link_url, outputDir):
                 print("Error creating directory: " + download_path + " (" + str(e) + ")")
     
     if link_url_valid and outputDir_valid:
-        return True, item_api_url, download_path
+        return True, item_api_url, download_path, status
 
 
 def downloadFiles (link_url, item_api_url, download_path):
@@ -179,9 +187,12 @@ def click_download():
     
     #If the user has entered a valid handle and output directory, download files
     if link_url and outputDir:
-        valid, item_api_url, download_path = validate_input(link_url, outputDir)
-        if valid:
-            downloadFiles(link_url, item_api_url, download_path)
+        valid, item_api_url, download_path, status = validate_input(link_url, outputDir)
+        if status == 'open.access':
+            if valid:
+                downloadFiles(link_url, item_api_url, download_path)
+        elif status == 'embargo':    
+            show_error("All files connected to this data deposit are under embargo. A folder was created, but the files must be manually downloaded.")
     
     #If the user has not entered the necessary information, request it
     elif outputDir:
