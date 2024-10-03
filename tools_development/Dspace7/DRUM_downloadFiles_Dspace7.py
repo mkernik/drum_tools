@@ -192,7 +192,7 @@ def click_download():
             if valid:
                 downloadFiles(link_url, item_api_url, download_path)
         elif status == 'embargo':    
-            show_error("All files connected to this data deposit are under embargo. A folder was created, but the files must be manually downloaded.")
+            show_error("Some files connected to this data deposit are under embargo. A folder was created, but the files must be manually downloaded.")
     
     #If the user has not entered the necessary information, request it
     elif outputDir:
