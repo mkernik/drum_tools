@@ -83,9 +83,8 @@ def validate_input(link_url, outputDir):
     
     #Try to access the Dspace endpoint. Return an error message and stop if the URL cannot be opened.
     try:
-        response = urllib.request.urlopen(item_api_url)
-        link_url_valid = True
         response = requests.get(item_api_url)
+        link_url_valid = True
         itemData = response.json()
         handle_uri = itemData['metadata']['dc.identifier.uri'][0]['value']
         handle_split = handle_uri.split ("/") [-2:]
@@ -94,6 +93,16 @@ def validate_input(link_url, outputDir):
         show_error("The tool cannot access information. Double check the URL.") 
         print("The API endpoint (" + item_api_url + ") could not be opened:  " + str(e))
     
+    ###Replaced by file specific level embargo check? 
+    #Check whether all associated files are embargoed
+    # try:
+    #     response = requests.get(item_api_url + "/accessStatus")
+    #     accessData = response.json()
+    #     status = accessData['status']
+    #     print (status)
+    # except Exception as e:
+    #     print("The API endpoint (" + item_api_url + ") could not be opened:  " + str(e))
+        
     #Create a folder with the unique handle number of the submission. Return an error if that folder already exists.
     if link_url_valid:       
         download_path = outputDir + "/" + handle_split[1] + "/"
@@ -111,6 +120,7 @@ def validate_input(link_url, outputDir):
     
     if link_url_valid and outputDir_valid:
         return True, item_api_url, download_path
+        #return True, item_api_url, download_path, status
 
 
 def downloadFiles (link_url, item_api_url, download_path):
@@ -136,6 +146,7 @@ def downloadFiles (link_url, item_api_url, download_path):
     
     downloaded_files = 0
     passed_files = 0
+    embargoed_files = 0
     for page in range(bitstreamsData['page']['totalPages']):
         next_url = bitstreams_url + "?page=" + str(page)
         response = requests.get(next_url)
@@ -145,20 +156,35 @@ def downloadFiles (link_url, item_api_url, download_path):
             identifier = bitstreamsDataExtra['_embedded']['bitstreams'][x]['id']
             filesize = convert_size(bitstreamsDataExtra['_embedded']['bitstreams'][x]['sizeBytes'])
             download = "https://conservancy.umn.edu/bitstream/" + identifier + "/download"        
+                        
             try:
                 print("Now downloading: " + filename + " (" + filesize + ") ...")
-                urllib.request.urlretrieve(download, (download_path + "//" + filename))
-                print(filename + " has been downloaded")
-                downloaded_files += 1
-                time.sleep(1)
+                # Check for the contentType of the file in the header. If text/html, check whether if there is text from the log-in screen (indicating it is embargoed)
+                response = requests.head(download)
+                contentType = response.headers['content-type']
+                if 'text/html' in contentType:
+                    response = requests.get(download)
+                    if "<title>University Digital Conservancy :: Login" in response.text:
+                        print ("Check if " + filename + " is embargoed.")
+                        embargoed_files += 1
+                    else:
+                        urllib.request.urlretrieve(download, (download_path + "//" + filename))
+                        print(filename + " has been downloaded")
+                        downloaded_files += 1
+                        time.sleep(1)
+                else:
+                    urllib.request.urlretrieve(download, (download_path + "//" + filename))
+                    print(filename + " has been downloaded")
+                    downloaded_files += 1
+                    time.sleep(1)
             except Exception as e:
                 print ("Cannot download: " + filename + ". Skipping file.  Please try downloading manually. More detail about the error: " + str(e))
                 passed_files += 1
                 pass
     if downloaded_files >= 1:
-        show_results("Finished downloading " + str(downloaded_files) + " files from: \n" + link_url + "\n" + str(passed_files) + " were skipped due to a download error.")
+        show_results("Finished downloading " + str(downloaded_files) + " files from: \n" + link_url + "\n" + str(embargoed_files) + " were skipped due to embargo.\n" + str(passed_files) + " were skipped due to a download error.")
     else:
-        show_results("Finished, but no files were downloaded. Check whether the files are embargoed. They must be manually downloaded.")    
+        show_results("Finished, but no files were downloaded.")    
         
        
 # Create the GUI interface
@@ -182,6 +208,13 @@ def click_download():
         valid, item_api_url, download_path = validate_input(link_url, outputDir)
         if valid:
             downloadFiles(link_url, item_api_url, download_path)
+        #valid, item_api_url, download_path, status = validate_input(link_url, outputDir)
+        ###Replaced with file specific embargo check?
+        # if status == 'open.access':
+        #     if valid:
+        #         downloadFiles(link_url, item_api_url, download_path)
+        # elif status == 'embargo':    
+        #     show_error("Some files connected to this data deposit are under embargo. A folder was created, but the files must be manually downloaded.")
     
     #If the user has not entered the necessary information, request it
     elif outputDir:
